@@ -75,7 +75,7 @@ struct super_block {
 
 //固定分区
 struct inode {
-    u32 i_mode;     /**< Accsess mode */
+    u32 i_mode;     /**< Access mode */
     u32 i_size;     /**< File size */
     u32 i_start_sect;   /**< The first sector of the data */
     u32 i_nr_sects; /**< How many sectors the file occupies */

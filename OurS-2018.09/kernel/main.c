@@ -197,8 +197,9 @@ void shell(char *tty_name){
             j++;
         }
         //清空缓冲区
-        rdbuf[r] = 0;
-
+        clearArr(rdbuf, 512);
+        clearArr(fd_stdin, 512);
+        
         if (strcmp(cmd, "process") == 0)
         {
             ProcessManage();
@@ -228,6 +229,7 @@ void shell(char *tty_name){
                 printf("Failed to create file. Please check the filename.\n");
                 continue ;
             }
+
             write(fd, buf, 1);
             printf("File created: %s (fd %d)\n", arg1, fd);
             close(fd);
@@ -245,14 +247,14 @@ void shell(char *tty_name){
                 printf("Failed to open file. Please check the filename.\n");
                 continue ;
             }
-            if (!verifyFilePass(arg1, fd_stdin))
+            if (!verifyPswd(arg1, fd_stdin))
             {
                 printf("Authorization failed.\n");
                 continue;
             }
             read(fd, buf, 1024);
             close(fd);
-            printf("%s\n", buf);
+            printf("%s\n", buf);   
         }
         else if (strcmp(cmd, "edit") == 0)
         {
@@ -264,10 +266,10 @@ void shell(char *tty_name){
             fd = open(arg1, O_RDWR);
             if (fd == -1)
             {
-                printf("Failed to open file! Please check the filename!\n");
+                printf("Failed to open file. Please check the filename.\n");
                 continue ;
             }
-            if (!verifyFilePass(arg1, fd_stdin))
+            if (!verifyPswd(arg1, fd_stdin))
             {
                 printf("Authorization failed.\n");
                 continue;
@@ -391,7 +393,7 @@ void shell(char *tty_name){
                 printf("File doesn't exist. Please check the filename.\n");
                 continue ;
             }
-            if (!verifyFilePass(arg1, fd_stdin))
+            if (!verifyPswd(arg1, fd_stdin))
             {
                 printf("Authorization failed.\n");
                 continue;
@@ -430,17 +432,17 @@ void shell(char *tty_name){
                 while(arg1[i]!=0){
                     arg2[j++]=arg1[i++];
                 }
-                arg2[j++] = '/';
-                arg2[j]=0;
+                /*arg2[j++] = '/';
+                arg2[j]=0;*/
                 memcpy(arg1, arg2, 512);
             }
-            else if(strcmp(arg1, "/")!=0){
+            /*else if(strcmp(arg1, "/")!=0){
 
                 for(i=0;arg1[i]!=0;i++){
                 arg1[i++] = '/';
                 arg1[i] = 0;}
             }
-            printf("%s\n", arg1);
+            printf("%s\n%s\n", arg1,arg2);*/
             fd = open(arg1, O_RDWR);
 
             if(fd == -1){
@@ -551,12 +553,11 @@ void printTitle()
 {
     clear(); 	
 
-  //  disp_color_str("dddddddddddddddd\n", 0x9);
     if(current_console==0){
-    	printf("                        ==================================\n");
-    	printf("                                   OurS 2018.09\n");
-    	printf("                              Based on Orange's Kernel \n");
-    	printf("                        ==================================\n");
+    	printf("                      ==================================\n");
+    	printf("                                OurS 2018.09\n");
+    	printf("                           Based on Orange's Kernel \n");
+    	printf("                      ==================================\n\n");
     }
     else{
     	printf("[TTY #%d]\n", current_console);
@@ -565,8 +566,8 @@ void printTitle()
 }
 
 void clear()
-{	
-	clear_screen(0,console_table[current_console].cursor);
+{
+    clear_screen(0,console_table[current_console].cursor);
     console_table[current_console].crtc_start = console_table[current_console].orig;
     console_table[current_console].cursor = console_table[current_console].orig;    
 }
@@ -580,9 +581,9 @@ void doTest(char *path)
     printl("\n");
 }
 
-int verifyFilePass(char *path, int fd_stdin)
+int verifyPswd(char *path, int fd_stdin)
 {
-    char pass[128];
+    char pswd[128]={0};
 
     struct dir_entry *pde = find_entry(path);
 
@@ -592,9 +593,8 @@ int verifyFilePass(char *path, int fd_stdin)
         return 1;
 
     printl("Please enter the file password: ");
-    read(fd_stdin, pass, 128);
-
-    if (strcmp(pde->pass, pass) == 0)
+    read(fd_stdin, pswd, 128);
+    if (strcmp(pde->pass, pswd) == 0)
         return 1;
 
     return 0;
@@ -676,8 +676,8 @@ void help()
     printf("6.  show        [file]            : Print the file\n");
     printf("7.  edit        [file]            : Edit the content of the file\n");
     printf("8.  del         [file]            : Delete a file\n");
-    printf("9.  copy        [SOURCE] [DEST]   : Copy a file\n");
-    printf("10. move        [SOURCE] [DEST]   : Move a file\n");   
+    printf("9.  copy        [src] [dst]       : Copy a file\n");
+    printf("10. move        [src] [dst]       : Move a file\n");   
     printf("11. encrypt     [file]            : Encrypt a file\n");
     printf("12. cd          [pathname]        : Change the directory\n");
     printf("13. mkdir       [directory name]  : Create a new directory in current directory\n");
@@ -689,13 +689,13 @@ void ProcessManage()
 {
     int i;
     printf("=============================================================================\n");
-    printf("       ID     |     Name      |    Priority    |   IsRunning\n");
+    printf("       ID     |     Name      |    Priority    |     IsRunning\n");
     //进程号，进程名，优先级，是否在运行
     printf("-----------------------------------------------------------------------------\n");
     for ( i = 0 ; i < NR_TASKS + NR_PROCS ; ++i )//逐个遍历
     {
         /*if ( proc_table[i].priority == 0) continue;//系统资源跳过*/
-        printf("       %d            %s              %d              yes\n", proc_table[i].pid, proc_table[i].name, proc_table[i].priority);
+        printf("       %d            %s              %d                 yes\n", proc_table[i].pid, proc_table[i].name, proc_table[i].priority);
     }
     printf("=============================================================================\n");
 }
