@@ -79,8 +79,7 @@ PUBLIC int do_open()
 
     struct inode * pin = 0;
 
-    printl("test1\n");
-
+    
     if (flags & O_CREAT) {
         if (inode_nr) {
             //文件已存在，不要输出错误信息
@@ -103,7 +102,6 @@ PUBLIC int do_open()
         printl("filename:%s, pathname:%s\n", filename, pathname);
         pin = get_inode(dir_inode->i_dev, inode_nr);
     }
-
     if (pin) {
         /* connects proc with file_descriptor */
         pcaller->filp[fd] = &f_desc_table[i];
@@ -140,7 +138,6 @@ PUBLIC int do_open()
     else {
         return -1;
     }
-
     return fd;
 }
 
@@ -172,9 +169,7 @@ PRIVATE struct inode * create_file(char * path, int flags)
                       NR_DEFAULT_FILE_SECTS);
     struct inode *newino = new_inode(dir_inode->i_dev, inode_nr,
                      free_sect_nr, I_REGULAR);
-
     new_dir_entry(dir_inode, newino->i_num, filename);
-
     return newino;
 }
 
@@ -260,7 +255,7 @@ PUBLIC int do_ls()
 
     struct dir_entry * pde;
 
-    printl("\ninode        filename\n");
+    printl("\n inode  |  filename\n");
     printl("============================\n");
 
     for (i = 0; i < nr_dir_blks; i++)
@@ -306,7 +301,7 @@ PUBLIC int do_mkdir()
 
 	int result = create_dir(pathname);
 	if(!result){
-		printl("Create dir %s fail!\n", pathname);
+		printl("Create dir %s failed!\n", pathname);
 		return -1;
 	}
 	
