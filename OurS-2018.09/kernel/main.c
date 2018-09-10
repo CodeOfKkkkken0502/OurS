@@ -138,15 +138,17 @@ void shell(char *tty_name){
 	 int fd;
 
     //int isLogin = 0;
-
+    
     char rdbuf[512];
     char cmd[512];
     char arg1[512];
     char arg2[512];
     char buf[1024];
     char temp[512];
-    char current_dirr[512] = "/";
+    char current_dirr[512] = "/root/";
     int fd_stdin  = open(tty_name, O_RDWR);
+clearArr(fd_stdin, 512);
+printl("Why do you get out??!!");
     assert(fd_stdin  == 0);
     int fd_stdout = open(tty_name, O_RDWR);
     assert(fd_stdout == 1);
@@ -276,7 +278,7 @@ void shell(char *tty_name){
             }
             int tail = read(fd_stdin, rdbuf, 512);
             rdbuf[tail] = 0;
-
+            printf("Start edition:\n");
             write(fd, rdbuf, tail+1);
             close(fd);
         }
@@ -287,19 +289,24 @@ void shell(char *tty_name){
                 addTwoString(temp,current_dirr,arg1);
                 memcpy(arg1,temp,512);                
             }
-
-            int result;
-            result = unlink(arg1);
-            if (result == 0)
-            {
-                printf("File deleted.\n");
-                continue;
+            printf("Sure?[yes/no]:");
+            while(strcmp(fd_stdin,"no") != 0 && strcmp(fd_stdin,"yes") != 0){printf("\nCommand not found.Please enter again:");}
+            if(strcmp(fd_stdin,"no") == 0){printf("Delete Cancelled.");continue;}
+            else if(strcmp(fd_stdin,"yes") == 0){
+              int result;
+              result = unlink(arg1);
+              if (result == 0)
+              {
+                  printf("File deleted.\n");
+                  continue;
+              }
+              else
+              {
+                  printf("Failed to delete file. Please check the filename.\n");
+                  continue;
+              }
             }
-            else
-            {
-                printf("Failed to delete file. Please check the filename.\n");
-                continue;
-            }
+            clearArr(fd_stdin, 512);
         }
         else if (strcmp(cmd, "copy") == 0)
         {
@@ -456,6 +463,7 @@ void shell(char *tty_name){
         else
             printf("Command not found. Please check again.\n");
     }
+
 }
 
 /*======================================================================*

@@ -80,6 +80,7 @@ struct inode {
     u32 i_start_sect;   /**< The first sector of the data */
     u32 i_nr_sects; /**< How many sectors the file occupies */
     u8  _unused[16];    /**< Stuff for alignment */
+    u16 i_type; //File or Directory
 
     /* the following items are only present in memory */
     int i_dev;
@@ -113,6 +114,8 @@ struct dir_entry {
     int   created_time;
     int   changed_time;
     char  pass[16];
+    int   type;
+    struct dir_entry * parent;//Parent dir_entry
 };
 
 /**
