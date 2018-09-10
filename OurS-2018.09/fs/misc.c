@@ -109,8 +109,9 @@ PUBLIC int search_file(char * path)
         RD_SECT(dir_inode->i_dev, dir_blk0_nr + i);
         pde = (struct dir_entry *)fsbuf;
         for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
+//printl("\npde:%s\n",pde->name);
             if (memcmp(filename, pde->name, MAX_FILENAME_LEN) == 0)
-                return pde->inode_nr;
+                {return pde->inode_nr;}
             if (++m > nr_dir_entries)
                 break;
         }
@@ -205,7 +206,7 @@ PUBLIC int strip_path(char * filename, const char * pathname,
                         ptemp = get_inode(pinode_now->i_dev, pde->inode_nr);
                         //printl("out\n");
                         if(ptemp->i_mode == I_DIRECTORY){
-                           // printl("in\n");
+                            //printl("in\n");
                             pinode_now = ptemp;
                             flag = 1;
                             break;
@@ -216,11 +217,12 @@ PUBLIC int strip_path(char * filename, const char * pathname,
                         return -1;
                 }
                 if (m > nr_dir_entries || flag==0) {
-                   // printl("flag==0\n");
+                   //printl("\naaaaaaa\n");
                     return -1;
                 }
             }
             if(flag == 0){
+                //printl("\nbbbbbbb\n");
                 return -1;
             }
             t = filename;
@@ -236,7 +238,7 @@ PUBLIC int strip_path(char * filename, const char * pathname,
 
     *t = 0;
     *ppinode = pinode_now;
-  //  printl("size:%d\n",pinode_now->i_size);
+    //printl("size:%d\n",pinode_now->i_size);
     return 0;
 }
 

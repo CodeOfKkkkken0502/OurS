@@ -196,7 +196,7 @@ PRIVATE void mkfs()
 {
 	MESSAGE driver_msg;
 	int i, j;
-
+//printl("\none");
 	int bits_per_sect = SECTOR_SIZE * 8; /* 8 bits per byte */
 
 	/* get the geometry of ROOTDEV */
@@ -326,7 +326,10 @@ PRIVATE void mkfs()
 		pde->inode_nr = i + 2; /* dev_tty0's inode_nr is 2 */
 		sprintf(pde->name, "dev_tty%d", i);
 	}
+//printl("\ntwo");
 	WR_SECT(ROOT_DEV, sb.n_1st_sect);
+//printl("\nthree");
+
 }
 
 /*****************************************************************************
@@ -440,7 +443,9 @@ PUBLIC struct super_block * get_super_block(int dev)
 PUBLIC struct inode * get_inode(int dev, int num)
 {
     if (num == 0)
-        return 0;
+        {
+//printl("WTF1");
+return 0;}
 
     struct inode * p;
     struct inode * q = 0;
@@ -449,12 +454,14 @@ PUBLIC struct inode * get_inode(int dev, int num)
             if ((p->i_dev == dev) && (p->i_num == num)) {
                 /* this is the inode we want */
                 p->i_cnt++;
+//printl("WTF2");
                 return p;
             }
         }
         else {      /* a free slot */
             if (!q) /* q hasn't been assigned yet */
-                q = p; /* q <- the 1st free slot */
+//printl("WTF3");                
+q = p; /* q <- the 1st free slot */
         }
     }
 
@@ -477,6 +484,9 @@ PUBLIC struct inode * get_inode(int dev, int num)
     q->i_size = pinode->i_size;
     q->i_start_sect = pinode->i_start_sect;
     q->i_nr_sects = pinode->i_nr_sects;
+//printl("WTF4");
+//q=0;
+//if(q){printl("\naaaaaaa\n");}
     return q;
 }
 
