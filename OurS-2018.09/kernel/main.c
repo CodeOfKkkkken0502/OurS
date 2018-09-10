@@ -138,7 +138,7 @@ void shell(char *tty_name){
 	 int fd;
 
     //int isLogin = 0;
-
+    
     char rdbuf[512];
     char cmd[512];
     char arg1[512];
@@ -147,8 +147,11 @@ void shell(char *tty_name){
     char temp[512];
     char current_dirr[512] = "/";
     int fd_stdin  = open(tty_name, O_RDWR);
+
+    printl("\nin:%d\n",fd_stdin);
     assert(fd_stdin  == 0);
     int fd_stdout = open(tty_name, O_RDWR);
+    printl("\nout:%d\n",fd_stdout);
     assert(fd_stdout == 1);
 
     clear();
@@ -276,7 +279,7 @@ void shell(char *tty_name){
             }
             int tail = read(fd_stdin, rdbuf, 512);
             rdbuf[tail] = 0;
-
+            printf("Start edition:\n");
             write(fd, rdbuf, tail+1);
             close(fd);
         }
@@ -287,19 +290,26 @@ void shell(char *tty_name){
                 addTwoString(temp,current_dirr,arg1);
                 memcpy(arg1,temp,512);                
             }
-
-            int result;
-            result = unlink(arg1);
-            if (result == 0)
-            {
-                printf("File deleted.\n");
-                continue;
+            printf("Sure?[yes/no]:");
+            int a = read(fd_stdin, rdbuf, 512);
+            while(strcmp(rdbuf,"no") != 0 && strcmp(rdbuf,"yes") != 0){printf("\nCommand not found.Please enter again:");clearArr(fd_stdin, 512);clearArr(rdbuf, 512);a = read(fd_stdin, rdbuf, 512);}
+            if(strcmp(rdbuf,"no") == 0){printf("Delete Cancelled.\n");continue;}
+            else if(strcmp(rdbuf,"yes") == 0){
+              int result;
+              result = unlink(arg1);
+              if (result == 0)
+              {
+                  printf("File deleted.\n");
+                  continue;
+              }
+              else
+              {
+                  printf("Failed to delete file. Please check the filename.\n");
+                  continue;
+              }
             }
-            else
-            {
-                printf("Failed to delete file. Please check the filename.\n");
-                continue;
-            }
+            clearArr(fd_stdin, 512);
+            clearArr(rdbuf, 512);
         }
         else if (strcmp(cmd, "copy") == 0)
         {
@@ -456,6 +466,7 @@ void shell(char *tty_name){
         else
             printf("Command not found. Please check again.\n");
     }
+
 }
 
 /*======================================================================*
